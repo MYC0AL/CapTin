@@ -1,30 +1,35 @@
 /****************************************************
- * ControlDisplay.h
+ * TaskSetup.h
  * 
- * Control the display
+ * Setup the CapTin tasks
  * 
  ****************************************************/
-#ifndef _CONTROLDISPLAY_H_
-#define _CONTROLDISPLAY_H_
+#ifndef _TASKSETUP_H_
+#define _TASKSETUP_H_
 
 /**********************
  * Includes
  **********************/
-#include <Arduino_GFX_Library.h>
-#include "JPEGDEC.h"
+#include <FreeRTOS.h>
+#include <task.h>
 #include "cmn/Errors.h"
-#include "cmn/DrawJPEG.h"
 
 /**********************
  * Defines
  **********************/
-#define ESP32_8048S043
-
-#define GFX_BL -1
-#define TFT_BL GFX_BL
+#define TASK_MIN_STACK 4096
 
 /**********************
  * Types
+ **********************/
+enum
+{
+    tskMED_PRIORITY,
+    tskHIGH_PRIORITY,
+};
+
+/**********************
+ * Function Prototypes
  **********************/
 
 /**********************
@@ -34,8 +39,6 @@
 /**********************
  * Functions
  **********************/
-int jpegDrawCallback(JPEGDRAW *pDraw);
-Arduino_ST7701_RGBPanel * Display_getGFX();
-err_t Display_FillJPEG( const char * file_name );
+err_t Init_Task_CapTin( );
 
 #endif

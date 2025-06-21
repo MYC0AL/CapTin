@@ -1,30 +1,23 @@
 /****************************************************
- * ControlDisplay.h
+ * AppCapTin.h
  * 
- * Control the display
+ * The CapTin Application
  * 
  ****************************************************/
-#ifndef _CONTROLDISPLAY_H_
-#define _CONTROLDISPLAY_H_
 
 /**********************
  * Includes
  **********************/
-#include <Arduino_GFX_Library.h>
-#include "JPEGDEC.h"
 #include "cmn/Errors.h"
-#include "cmn/DrawJPEG.h"
+#include <FreeRTOS.h>
+#include "cmn/ControlDisplay.h"
 
 /**********************
  * Defines
  **********************/
-#define ESP32_8048S043
-
-#define GFX_BL -1
-#define TFT_BL GFX_BL
 
 /**********************
- * Types
+ * Function Prototypes
  **********************/
 
 /**********************
@@ -34,8 +27,11 @@
 /**********************
  * Functions
  **********************/
-int jpegDrawCallback(JPEGDRAW *pDraw);
-Arduino_ST7701_RGBPanel * Display_getGFX();
-err_t Display_FillJPEG( const char * file_name );
 
-#endif
+/***************************************************
+ * Init_Task_CapTin()
+ * 
+ * Description: Mount the SD Card to access the
+ * files.
+ **************************************************/
+void CapTin_run( void * pvParameters );
