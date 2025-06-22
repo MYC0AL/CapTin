@@ -1,15 +1,17 @@
 /****************************************************
- * AppCapTin.cpp
+ * AppTicTacToe.h
  * 
- * The CapTin Application
+ * The TicTacToe Application
  * 
  ****************************************************/
 
 /**********************
  * Includes
  **********************/
-#include "app/AppCapTin.h"
-#include "cmn/DrawJPEG.h"
+#include "cmn/Errors.h"
+#include <FreeRTOS.h>
+#include "cmn/ControlDisplay.h"
+#include "cmn/ControlTouch.h"
 
 /**********************
  * Defines
@@ -28,20 +30,8 @@
  **********************/
 
 /***************************************************
- * CapTin_run()
+ * TicTacToe_run()
  * 
- * Description: Run the CapTin application
+ * Description: Run the TicTacToe application
  **************************************************/
-void CapTin_run( void * pvParameters )
-{
-    Serial.println("CapTin: Application Started ");
-
-    const char * file_name = "/golden.jpg";
-    Display_FillJPEG( file_name );
-
-    while( 1 )
-    {
-        Serial.println( "CapTin: Heartbeat" );
-        vTaskDelay( 1000 );
-    }
-}
+void TicTacToe_run( void * pvParameters );

@@ -28,11 +28,4 @@
 /**********************
  * Functions
  **********************/
-
-/***************************************************
- * Init_Task_CapTin()
- * 
- * Description: Mount the SD Card to access the
- * files.
- **************************************************/
 void CapTin_run( void * pvParameters );

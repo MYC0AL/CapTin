@@ -24,8 +24,10 @@ void setup()
     Serial.println("Error: SD Card Failed to Mount");
   }
 
-  /* Initialize the CapTin task */
+  /* Initialize the relevant tasks */
   Init_Task_CapTin();
+  Init_Task_TicTacToe();
+  
 }
 
 void loop(void)
