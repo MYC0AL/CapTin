@@ -29,6 +29,8 @@
  **********************/
 extern int jpegDrawCallback(JPEGDRAW *pDraw);
 
+//TODO MJB: Remove this once we get NFC working
+
 /***************************************************
  * CapTin_run()
  * 
@@ -41,9 +43,17 @@ void CapTin_run( void * pvParameters )
     const char * file_name = "/golden.jpg";
     Display_FillJPEG( file_name );
 
+    uint8_t touch_count = 0;
+    TP_Point touches[TOUCH_MAX] = {};
+
     while( 1 )
     {
-        Serial.println("CapTin: Heartbeat");
+        Touch_getTouches( touches, &touch_count );
+        Serial.printf( "Touch Count: %d\r\n", touch_count );
+        for ( int i = 0; i < touch_count; i++ )
+        {
+            Serial.printf( "Coord: (%d,%d)\r\n", touches[i].x, touches[i].y );
+        }
         vTaskDelay( 1000 );
     }
 }

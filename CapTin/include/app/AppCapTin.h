@@ -11,6 +11,7 @@
 #include "cmn/Errors.h"
 #include <FreeRTOS.h>
 #include "cmn/ControlDisplay.h"
+#include "cmn/ControlTouch.h"
 
 /**********************
  * Defines

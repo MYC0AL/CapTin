@@ -2,6 +2,7 @@
 #include "cmn/DrawJPEG.h"
 #include "cmn/ControlSD.h"
 #include "cmn/ControlDisplay.h"
+#include "cmn/ControlTouch.h"
 #include "drv/TaskSetup.h"
 
 void setup()
@@ -9,8 +10,10 @@ void setup()
 
   Serial.begin(9600);
 
+  Touch_getDriver()->begin();
+  Serial.println("CapTin: Touch Driver Initialized");
   Display_getGFX()->begin();
-  Serial.println("CapTin: Graphics Library Initialized");
+  Serial.println("CapTin: Graphics Driver Initialized");
 
   if ( SD_mount() == ERR_NONE )
   {
