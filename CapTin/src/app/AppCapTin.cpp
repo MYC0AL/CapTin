@@ -36,12 +36,12 @@ void CapTin_run( void * pvParameters )
 {
     Serial.println("CapTin: Application Started ");
 
-    const char * file_name = "/golden.jpg";
-    Display_FillJPEG( file_name );
+    // const char * file_name = "/golden.jpg";
+    // Display_FillJPEG( file_name );
 
     while( 1 )
     {
-        Serial.println( "CapTin: Heartbeat" );
+        // Serial.println( "CapTin: Heartbeat" );
         vTaskDelay( 1000 );
     }
 }

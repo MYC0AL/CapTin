@@ -23,7 +23,7 @@
 /**********************
  * Functions
  **********************/
-err_t DrawJPEG( const char *filename, JPEG_DRAW_CALLBACK *jpegDrawCallback, 
+ct_err_t DrawJPEG( const char *filename, JPEG_DRAW_CALLBACK *jpegDrawCallback, 
                bool useBigEndian, int x, int y, int widthLimit, int heightLimit );
 
 #endif // _JPEGFUNC_H_

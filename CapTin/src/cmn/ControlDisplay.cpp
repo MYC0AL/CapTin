@@ -60,9 +60,9 @@ Arduino_ST7701_RGBPanel * Display_getGFX()
     return gfx;
 }
 
-err_t Display_FillJPEG( const char * file_name )
+ct_err_t Display_FillJPEG( const char * file_name )
 {
-    err_t err = DrawJPEG( file_name, jpegDrawCallback, 
+    ct_err_t err = DrawJPEG( file_name, jpegDrawCallback, 
                       true /* useBigEndian */,
                       0 /* x */, 0 /* y */, 
                       gfx->width() /* widthLimit */, 

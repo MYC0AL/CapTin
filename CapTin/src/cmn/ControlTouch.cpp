@@ -37,7 +37,7 @@ TAMC_GT911* Touch_getDriver( )
     return &ts;
 }
 
-err_t Touch_getTouches( TP_Point touches[TOUCH_MAX], uint8_t* touch_count )
+ct_err_t Touch_getTouches( TP_Point touches[TOUCH_MAX], uint8_t* touch_count )
 {
     /* Read the TAMC_GT911 for touch information */
     ts.read();

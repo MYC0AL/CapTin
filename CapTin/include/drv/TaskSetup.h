@@ -39,7 +39,7 @@ enum
 /**********************
  * Functions
  **********************/
-err_t Init_Task_CapTin( );
-err_t Init_Task_TicTacToe( );
+ct_err_t Init_Task_CapTin( );
+ct_err_t Init_Task_TicTacToe( );
 
 #endif

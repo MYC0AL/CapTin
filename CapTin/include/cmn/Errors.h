@@ -7,13 +7,14 @@
 #ifndef _ERRORS_H
 #define _ERRORS_H
 
-typedef short err_t;
+typedef short ct_err_t;
 enum
 {
     ERR_NONE = 0,
-    ERR_FILE_NOT_FOUND = 1,
-    ERR_INVLD_PARAM = 2,
-    ERR_SD_MOUNT_FAIL = 3,
+    ERR_GNRL,
+    ERR_FILE_NOT_FOUND,
+    ERR_INVLD_PARAM,
+    ERR_SD_MOUNT_FAIL,
 };
 
 #endif

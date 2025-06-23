@@ -24,9 +24,9 @@
  * Description: Mount the SD Card to access the
  * files.
  **************************************************/
-err_t SD_mount( )
+ct_err_t SD_mount( )
 {
-    err_t retCode = ERR_NONE;
+    ct_err_t retCode = ERR_NONE;
 
     SPI.begin( SD_SCK, SD_MISO, SD_MOSI, SD_CS );
     pinMode(SD_CS, OUTPUT);
@@ -46,7 +46,7 @@ err_t SD_mount( )
  * Description: Based on a file name, open the SD
  * card and return a pointer to the file.
  **************************************************/
-err_t SD_getFile( File* sd_file, const char *filename, int32_t *size ) 
+ct_err_t SD_getFile( File* sd_file, const char *filename, int32_t *size ) 
 {
     if ( !sd_file )
     {
@@ -65,7 +65,7 @@ err_t SD_getFile( File* sd_file, const char *filename, int32_t *size )
  * Description: Close an open file on the SD card.
  * 
  **************************************************/
-err_t SD_closeFile( File* sd_file )
+ct_err_t SD_closeFile( File* sd_file )
 {
     if ( !sd_file )
     {
@@ -86,7 +86,7 @@ err_t SD_closeFile( File* sd_file )
  * Description: Read SD card file into buffer.
  * 
  **************************************************/
-err_t SD_readFile( File* sd_file, uint8_t *buffer, int32_t length )
+ct_err_t SD_readFile( File* sd_file, uint8_t *buffer, int32_t length )
 {
     if ( !sd_file )
     {

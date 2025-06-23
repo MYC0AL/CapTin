@@ -41,6 +41,6 @@
  * Functions
  **********************/
 TAMC_GT911* Touch_getDriver( );
-err_t Touch_getTouches( TP_Point touches[TOUCH_MAX], uint8_t* touch_count );
+ct_err_t Touch_getTouches( TP_Point touches[TOUCH_MAX], uint8_t* touch_count );
 
 #endif

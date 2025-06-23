@@ -36,7 +36,7 @@ static int _x, _y, _x_bound, _y_bound;
  * Description: Use the callback function to draw
  * JPEG pixels to the display
  **************************************************/
-err_t DrawJPEG( const char *filename, JPEG_DRAW_CALLBACK *jpegDrawCallback, 
+ct_err_t DrawJPEG( const char *filename, JPEG_DRAW_CALLBACK *jpegDrawCallback, 
                bool useBigEndian, int x, int y, int widthLimit, int heightLimit )
 {
     _x = x;

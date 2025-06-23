@@ -35,7 +35,7 @@ TaskHandle_t th_TicTacToe;
  * 
  * Description: Create the CapTin task and app
  **************************************************/
-err_t Init_Task_CapTin( )
+ct_err_t Init_Task_CapTin( )
 {
     xTaskCreate
         (
@@ -50,7 +50,7 @@ err_t Init_Task_CapTin( )
     return ERR_NONE;
 }
 
-err_t Init_Task_TicTacToe( )
+ct_err_t Init_Task_TicTacToe( )
 {
     xTaskCreate
         (

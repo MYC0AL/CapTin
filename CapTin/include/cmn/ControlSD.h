@@ -19,7 +19,7 @@
 #define SD_MOSI 11
 #define SD_CS   10
 
-err_t SD_mount( );
-err_t SD_getFile( File* sd_file, const char *filename, int32_t *size );
-err_t SD_closeFile( File* sd_file );
-err_t SD_readFile( File* sd_file, uint8_t *buffer, int32_t length );
+ct_err_t SD_mount( );
+ct_err_t SD_getFile( File* sd_file, const char *filename, int32_t *size );
+ct_err_t SD_closeFile( File* sd_file );
+ct_err_t SD_readFile( File* sd_file, uint8_t *buffer, int32_t length );
