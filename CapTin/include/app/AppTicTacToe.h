@@ -68,6 +68,7 @@ public:
 
     ct_err_t ResetGame();
     ct_err_t DrawBoard();
+    ct_err_t ClearPieces();
     uint8_t  TileTouched( TP_Point tp );
     ct_err_t PlacePiece( uint8_t pos );
     ct_err_t GameOver();
@@ -76,9 +77,9 @@ private:
 
 	ct_err_t setBit( unsigned int& num, int pos, int val = 1 );
     int getBit( uint8_t pos );
-    ct_err_t maskOldestBit(unsigned int& num, 
-                            unsigned int prev_moves[MAX_MOVE_COUNT], 
-                            int& count, int pos);
+    ct_err_t removeOldestPiece(unsigned int& num, 
+                                unsigned int prev_moves[MAX_MOVE_COUNT], 
+                                int& count, int pos);
 
 	unsigned int m_x_pos = 0b000000000;
 	unsigned int m_o_pos = 0b000000000;

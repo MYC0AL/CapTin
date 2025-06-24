@@ -47,8 +47,22 @@ void TicTacToe_run( void * pvParameters )
         if ( touch_count > 0 )
         {
             /* Process the first touch only */
-            ttt.PlacePiece( ttt.TileTouched( touches[0] ) );
-            ttt.DrawBoard();
+            if ( ttt.PlacePiece( ttt.TileTouched( touches[0] ) ) == ERR_NONE )
+            {
+                ttt.ClearPieces();
+                ttt.DrawBoard();
+
+                /* Check if a player won */
+                if ( ttt.GameOver() == ERR_NONE )
+                {
+                    vTaskDelay(1000);
+                    ttt.ResetGame();
+                    ttt.ClearPieces();
+                    ttt.DrawBoard();
+                    Touch_getTouches( touches, &touch_count );
+                    memset( touches, 0, sizeof(TP_Point)*TOUCH_MAX );
+                }
+            }
         }
     }
 }
@@ -123,6 +137,25 @@ ct_err_t TicTacToe::DrawBoard()
 }
 
 /***************************************************
+ * ClearPieces()
+ * 
+ * Description: Clear all TTT pieces
+ **************************************************/
+ct_err_t TicTacToe::ClearPieces()
+{
+    for (int bit = 0; bit < BOARD_SIZE; ++bit)
+    {
+        /* Clear empty tiles */
+        if ( getBit(bit) == 0 )
+        {
+            Display_getGFX()->fillRect( 165*(bit%3)+35,165*(bit/3)+20,90,120,BLACK );
+        }
+    }
+
+    return ERR_NONE; 
+}
+
+/***************************************************
  * TileTouched()
  * 
  * Description: Check if a touch point is inside
@@ -144,49 +177,45 @@ uint8_t TicTacToe::TileTouched( TP_Point tp )
  **************************************************/
 ct_err_t TicTacToe::PlacePiece( uint8_t pos )
 {
-    ct_err_t ret_val = ERR_NONE;
 
     if ( !VALID_POS(pos) )
     {
-        ret_val = ERR_INVLD_PARAM;
+        return ERR_INVLD_PARAM;
     }
 
     if ( m_status == GAME_OVER )
     {
-        ret_val = ERR_GNRL;
+        return ERR_GNRL;
     }
 
     if ( getBit(pos) )
     {
-        ret_val = ERR_GNRL;
+        return ERR_GNRL;
     }
 
-    if ( ret_val == ERR_NONE ) // Check if in valid playing field
+    if ( m_status == X_TURN )
     {
-        if ( m_status == X_TURN )
-        {
-            setBit( m_x_pos, pos );
+        setBit( m_x_pos, pos );
 
-            maskOldestBit(m_x_pos, m_x_prev_moves, m_x_move_count, pos);
+        removeOldestPiece(m_x_pos, m_x_prev_moves, m_x_move_count, pos);
 
-            m_status = O_TURN;
-        }
-        else if ( m_status == O_TURN )
-        {
-            setBit( m_o_pos, pos );
+        m_status = O_TURN;
+    }
+    else if ( m_status == O_TURN )
+    {
+        setBit( m_o_pos, pos );
 
-            maskOldestBit(m_o_pos, m_o_prev_moves, m_o_move_count, pos);
+        removeOldestPiece(m_o_pos, m_o_prev_moves, m_o_move_count, pos);
 
-            m_status = X_TURN;
-        }
-
-        if ( GameOver() == ERR_NONE ) // Check if win
-        {
-            m_status = GAME_OVER;
-        }
+        m_status = X_TURN;
     }
 
-    return ret_val;
+    if ( GameOver() == ERR_NONE ) // Check if win
+    {
+        m_status = GAME_OVER;
+    }
+
+    return ERR_NONE;
 }
 
 /***************************************************
@@ -241,7 +270,7 @@ ct_err_t TicTacToe::setBit( unsigned int& num, int pos, int val )
 /***************************************************
  * getBit()
  * 
- * Description: Get a bit in the X or O field
+ * Description: Get a bit in the X or O bit-field
  **************************************************/
 int TicTacToe::getBit( uint8_t pos )
 {
@@ -250,20 +279,22 @@ int TicTacToe::getBit( uint8_t pos )
     if (VALID_POS(pos))
     {
         unsigned int mask = 1 << pos;
-        ret_val = ((m_x_pos | m_o_pos) & mask);
+        ret_val = ((m_x_pos | m_o_pos) & mask) >> pos;
     }
 
     return ret_val;
 }
 
 /***************************************************
- * maskOldestBit()
+ * removeOldestPiece()
  * 
  * Description: Remove oldest piece from X or O
  **************************************************/
-ct_err_t TicTacToe::maskOldestBit( unsigned int& num, unsigned int prev_moves[MAX_MOVE_COUNT], int& count, int pos )
+ct_err_t TicTacToe::removeOldestPiece( unsigned int& num, unsigned int prev_moves[MAX_MOVE_COUNT], int& count, int pos )
 {
     int offset = count % MAX_MOVE_COUNT;
+
+    int oldest_move = prev_moves[MAX_MOVE_COUNT-1];
 
     if (count >= 3)
     {
