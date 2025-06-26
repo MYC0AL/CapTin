@@ -11,6 +11,7 @@
 #include "drv/TaskSetup.h"
 #include "app/AppCapTin.h"
 #include "app/AppTicTacToe.h"
+#include "app/AppSlotMachine.h"
 
 /**********************
  * Defines
@@ -25,6 +26,7 @@
  **********************/
 TaskHandle_t th_CapTin;
 TaskHandle_t th_TicTacToe;
+TaskHandle_t th_SlotMachine;
 
 /**********************
  * Functions
@@ -63,4 +65,19 @@ ct_err_t Init_Task_TicTacToe( )
         );
 
     return ERR_NONE;
+}
+
+ct_err_t Init_Task_SlotMachine( )
+{
+    xTaskCreate
+        (
+        SlotMachine_run,
+        "SlotMachine",
+        TASK_MIN_STACK,
+        nullptr,
+        tskMED_PRIORITY,
+        &th_SlotMachine
+        );
+
+    return ERR_NONE;  
 }

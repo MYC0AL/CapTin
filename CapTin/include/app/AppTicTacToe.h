@@ -5,6 +5,9 @@
  * 
  ****************************************************/
 
+#ifndef _APPTICTACTOE_H_
+#define _APPTICTACTOE_H_
+
 /**********************
  * Includes
  **********************/
@@ -94,3 +97,5 @@ private:
 
 	ttt_status_t m_status = X_TURN;
 };
+
+#endif

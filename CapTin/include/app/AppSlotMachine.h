@@ -1,46 +1,46 @@
 /****************************************************
- * TaskSetup.h
+ * SlotMachine.h
  * 
- * Setup the CapTin tasks
+ * The Slot Machine Application
  * 
  ****************************************************/
-#ifndef _TASKSETUP_H_
-#define _TASKSETUP_H_
+
+#ifndef _APPSLOTMACHINE_H_
+#define _APPSLOTMACHINE_H_
 
 /**********************
  * Includes
  **********************/
-#include <FreeRTOS.h>
-#include <task.h>
 #include "cmn/Errors.h"
+#include <FreeRTOS.h>
+#include "cmn/ControlDisplay.h"
+#include "cmn/ControlTouch.h"
+#include "arduino_sprite.h"
+#include "sprites/m.h"
+#include "sprites/a.h"
+#include "sprites/dog.h"
+#include <stdlib.h>
+#include <iostream>
 
 /**********************
  * Defines
  **********************/
-#define TASK_MIN_STACK 4096
 
 /**********************
  * Types
  **********************/
-enum
-{
-    tskMED_PRIORITY,
-    tskHIGH_PRIORITY,
-};
-
-/**********************
- * Function Prototypes
- **********************/
 
 /**********************
  * Variables
- **********************/
+**********************/
 
 /**********************
  * Functions
  **********************/
-ct_err_t Init_Task_CapTin( );
-ct_err_t Init_Task_TicTacToe( );
-ct_err_t Init_Task_SlotMachine( );
+void SlotMachine_run( void * pvParameters );
+
+/**********************
+ * Classes
+ **********************/
 
 #endif
