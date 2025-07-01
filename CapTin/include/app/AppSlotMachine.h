@@ -18,7 +18,7 @@
 #include "arduino_sprite.h"
 #include "sprites/m.h"
 #include "sprites/a.h"
-#include "sprites/dog.h"
+#include "sprites/man.h"
 #include <stdlib.h>
 #include <iostream>
 
