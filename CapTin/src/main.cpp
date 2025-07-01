@@ -16,8 +16,8 @@ void setup()
   // Display_getGFX()->begin();
   // Serial.println("CapTin: Graphics Driver Initialized");
 
-  // Display_getCanvas()->begin();
-  // Serial.println("CapTin: GFX Canvas Initialized");
+  Display_getCanvas()->begin();
+  Serial.println("CapTin: GFX Canvas Initialized");
 
   if ( SD_mount() == ERR_NONE )
   {

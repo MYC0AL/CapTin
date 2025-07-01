@@ -39,7 +39,7 @@ Arduino_ST7701_RGBPanel *gfx = new Arduino_ST7701_RGBPanel(
     st7701_type1_init_operations, sizeof(st7701_type1_init_operations),
     true /* BGR */);
 
-//Arduino_GFX *canvas = new Arduino_Canvas( 480, 480, gfx, 0, 0 );
+Arduino_GFX *canvas = new Arduino_Canvas( 480, 480, gfx, 0, 0 );
 
 
 /**********************
@@ -62,10 +62,10 @@ Arduino_ST7701_RGBPanel * Display_getGFX()
     return gfx;
 }
 
-// Arduino_GFX * Display_getCanvas()
-// {
-//     return canvas;
-// }
+Arduino_GFX * Display_getCanvas()
+{
+    return canvas;
+}
 
 ct_err_t Display_FillJPEG( const char * file_name )
 {

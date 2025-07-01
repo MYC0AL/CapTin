@@ -36,7 +36,7 @@
  **********************/
 int jpegDrawCallback(JPEGDRAW *pDraw);
 Arduino_ST7701_RGBPanel * Display_getGFX();
-//Arduino_GFX * Display_getCanvas();
+Arduino_GFX * Display_getCanvas();
 ct_err_t Display_FillJPEG( const char * file_name );
 
 #endif

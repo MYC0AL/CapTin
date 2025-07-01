@@ -43,22 +43,12 @@ void SlotMachine_run( void * pvParameters )
     Arduino_Sprite* foreground;
     Arduino_Sprite* dog;
 
-    Arduino_GFX *canvas = new Arduino_Canvas( 480, 480, Display_getGFX(), 0, 0 );
-    canvas->begin();
+    Display_getCanvas()->fillScreen(LIGHTGREY);
+    Display_getCanvas()->flush();
 
-    canvas->fillScreen(LIGHTGREY);
-    canvas->flush();
     Display_getGFX()->fillScreen(RED); // Note: Do not call gfx->begin() when using canvas
 
-    // foreground = new Arduino_Sprite(320,73,canvas);
-    // foreground->begin((uint8_t*)imageM,paletteM);
-    // foreground->SetChromaKey(0x0);
-
-    dog = new Arduino_Sprite(225, 225, canvas);
-    dog->begin((uint8_t*)myBitmapsprite_dog,0);
-    dog->SetChromaKey(0x0);
-
-    a = new Arduino_Sprite(240,50,canvas);
+    a = new Arduino_Sprite(240,50,Display_getCanvas());
     a->begin((uint8_t*)imageA,paletteA);
     a->SetChromaKey(0x0);
     a->Move(130, 94);
@@ -68,19 +58,6 @@ void SlotMachine_run( void * pvParameters )
     while(1)
     {
         a->Clear();
-
-        //foreground->Clear();
-
-        // Foreground
-        // scrollM -= 3;
-
-        // if(scrollM < 0)
-        // {
-        //     scrollM = 320 + scrollM;
-        // }
-
-        // foreground->Move(scrollM,67);
-        // foreground->Scroll();
 
         //Main player
         aAframe += 1;
@@ -93,8 +70,6 @@ void SlotMachine_run( void * pvParameters )
         a->Frame(aAframe);
         a->Draw();
 
-        dog->Draw();
-
-        canvas->flush();
+        Display_getCanvas()->flush();
     }
 }
