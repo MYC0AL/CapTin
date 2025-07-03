@@ -77,6 +77,7 @@ class Arduino_Sprite : public node_t{
   void Clear(void); // Clear sprite from display, needs BackingStore() set or this does nothing.
   void Draw(void);  // Draw sprite to screen.
   void Scroll(void); //draw a background, with pixel wrap.
+  void ScrollV(void); // draw a background, with vertical pixel wrap
     
   protected:
     

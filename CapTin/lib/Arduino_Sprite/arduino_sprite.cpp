@@ -255,6 +255,36 @@ void Arduino_Sprite::Scroll(){
     }
 }
 
+void Arduino_Sprite::ScrollV(void)
+{
+    if( flags & SPRITE_CHROMAKEY )
+    {
+        if( _output_y < 0 )
+        {
+            DrawFastWithKey(_output_x, _output_y, _frame);
+            DrawFastWithKey(_output_x, _fh + _output_y, _frame);
+        }
+        else
+        {
+            DrawFastWithKey(_output_x, _output_y, _frame);
+            DrawFastWithKey(_output_x, _output_y - _fh, _frame);
+        }
+    }
+    else
+    {
+        if( _output_y < 0 )
+        {
+            DrawFast(_output_x, _output_y, _frame);
+            DrawFast(_output_x, _fh + _output_y, _frame);
+        }
+        else
+        {
+            DrawFast(_output_x, _output_y, _frame);
+            DrawFast(_output_x, _output_y - _fh, _frame);
+        }
+    }
+}
+
 void Arduino_Sprite::ScrollFastWithKey(){
     
     if(_output_x<0){
