@@ -19,6 +19,7 @@
 #include "sprites/m.h"
 #include "sprites/a.h"
 #include "sprites/man.h"
+#include "sprites/reel.h"
 #include <stdlib.h>
 #include <iostream>
 
