@@ -37,6 +37,11 @@ TAMC_GT911* Touch_getDriver( )
     return &ts;
 }
 
+/***************************************************
+ * Touch_getTouches()
+ * 
+ * @brief Get the current touches.
+ **************************************************/
 ct_err_t Touch_getTouches( TP_Point touches[TOUCH_MAX], uint8_t* touch_count )
 {
     /* Read the TAMC_GT911 for touch information */
@@ -51,6 +56,21 @@ ct_err_t Touch_getTouches( TP_Point touches[TOUCH_MAX], uint8_t* touch_count )
         touches[i].y = map(ts.points[i].y, TOUCH_MAP_Y1, TOUCH_MAP_Y2, 0, 480 - 1);
     }
 
-    //ts.isTouched = false
     return ERR_NONE;
+}
+
+/***************************************************
+ * Touch_isBtnTouch()
+ * 
+ * @brief Check if a button is being pressed
+ **************************************************/
+ct_err_t Touch_isBtnTouch( BtnGUI_s btn, TP_Point touch )
+{
+    ct_err_t ret_val = ERR_GNRL;
+
+    if ( touch.x > btn.x && touch.x < btn.x + btn.w )
+        if ( touch.y > btn.y && touch.y < btn.y + btn.h )
+            ret_val = ERR_NONE;
+
+    return ret_val;
 }

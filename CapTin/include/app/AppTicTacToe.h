@@ -4,9 +4,7 @@
  * The TicTacToe Application
  * 
  ****************************************************/
-
-#ifndef _APPTICTACTOE_H_
-#define _APPTICTACTOE_H_
+#pragma once
 
 /**********************
  * Includes
@@ -97,5 +95,3 @@ private:
 
 	ttt_status_t m_status = X_TURN;
 };
-
-#endif

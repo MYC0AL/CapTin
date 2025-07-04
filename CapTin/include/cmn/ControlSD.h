@@ -4,6 +4,7 @@
  * Helper functions for interfacing with SD card.
  * 
  ****************************************************/
+#pragma once
 
 /**********************
  * Includes

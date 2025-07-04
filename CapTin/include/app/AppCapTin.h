@@ -4,6 +4,7 @@
  * The CapTin Application
  * 
  ****************************************************/
+#pragma once
 
 /**********************
  * Includes
@@ -29,3 +30,4 @@
  * Functions
  **********************/
 void CapTin_run( void * pvParameters );
+

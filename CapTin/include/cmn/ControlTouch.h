@@ -4,8 +4,7 @@
  * Control the TAMC_GT911 Touch Library
  * 
  ****************************************************/
-#ifndef _CONTROLTOUCH_H_
-#define _CONTROLTOUCH_H_
+#pragma once
 
 /**********************
  * Includes
@@ -32,6 +31,15 @@
 /**********************
  * Types
  **********************/
+typedef struct
+{
+    uint16_t x;
+    uint16_t y;
+    uint16_t w;
+    uint16_t h;
+    uint16_t c;
+
+} BtnGUI_s;
 
 /**********************
  * Variables
@@ -42,5 +50,4 @@
  **********************/
 TAMC_GT911* Touch_getDriver( );
 ct_err_t Touch_getTouches( TP_Point touches[TOUCH_MAX], uint8_t* touch_count );
-
-#endif
+ct_err_t Touch_isBtnTouch( BtnGUI_s btn, TP_Point touch );

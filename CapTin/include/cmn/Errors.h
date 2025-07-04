@@ -4,8 +4,7 @@
  * Common Error Codes
  * 
  ****************************************************/
-#ifndef _ERRORS_H
-#define _ERRORS_H
+#pragma once
 
 typedef short ct_err_t;
 enum
@@ -16,5 +15,3 @@ enum
     ERR_INVLD_PARAM,
     ERR_SD_MOUNT_FAIL,
 };
-
-#endif

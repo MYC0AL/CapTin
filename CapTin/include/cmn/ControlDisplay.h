@@ -4,8 +4,7 @@
  * Control the display
  * 
  ****************************************************/
-#ifndef _CONTROLDISPLAY_H_
-#define _CONTROLDISPLAY_H_
+#pragma once
 
 /**********************
  * Includes
@@ -14,6 +13,7 @@
 #include "JPEGDEC.h"
 #include "cmn/Errors.h"
 #include "cmn/DrawJPEG.h"
+#include "cmn/ControlTouch.h"
 
 /**********************
  * Defines
@@ -38,5 +38,3 @@ int jpegDrawCallback(JPEGDRAW *pDraw);
 Arduino_ST7701_RGBPanel * Display_getGFX();
 Arduino_GFX * Display_getCanvas();
 ct_err_t Display_FillJPEG( const char * file_name );
-
-#endif

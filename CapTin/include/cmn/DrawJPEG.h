@@ -5,9 +5,7 @@
  * and display them to the screen.
  * 
  ****************************************************/
-
-#ifndef _JPEGFUNC_H_
-#define _JPEGFUNC_H_
+#pragma once
 
 /**********************
  * Includes
@@ -26,4 +24,3 @@
 ct_err_t DrawJPEG( const char *filename, JPEG_DRAW_CALLBACK *jpegDrawCallback, 
                bool useBigEndian, int x, int y, int widthLimit, int heightLimit );
 
-#endif // _JPEGFUNC_H_

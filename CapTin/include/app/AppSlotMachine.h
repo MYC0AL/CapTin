@@ -4,9 +4,7 @@
  * The Slot Machine Application
  * 
  ****************************************************/
-
-#ifndef _APPSLOTMACHINE_H_
-#define _APPSLOTMACHINE_H_
+#pragma once
 
 /**********************
  * Includes
@@ -77,5 +75,3 @@ void SlotMachine_run( void * pvParameters );
 /**********************
  * Classes
  **********************/
-
-#endif
