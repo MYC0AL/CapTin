@@ -20,26 +20,42 @@
 static void Slot_InitReels( );
 static void Slot_LoadReels( );
 static void Slot_SpinReels( );
-static void Slot_LockReels( );
-static void Slot_UpdtItems( );
 static void Slot_UpdtCoins( );
 
 static void DisplayUI( );
 static void IncBetAmnt( );
 static void DecBetAmnt( );
+static SlotWins_t GetSlotWin();
+static SlotItems_t MapWinToItem( SlotWins_t win, uint8_t &payout );
 
 
 /**********************
  * Variables
  **********************/
-static SlotReel_s reel[ REEL_CNT ] = {0};
-static int        coins = 100;
-static uint8_t    bet_amnt = 1;
+static SlotReel_s  reel[ REEL_CNT ] = {0};
+static int         coins = 100;
+static uint8_t     bet_amnt = 1;
+static SlotWins_t  curr_win = SLOT_WIN_NONE;
+static SlotItems_t curr_item = SLOT_ITEM_SEVEN;
+static uint8_t     curr_payout = 0;
 
 static BtnGUI_s   btn_bet_add = { .x = 30, .y = 410, .w = 50, .h = 50, .c = GREEN };
 static BtnGUI_s   btn_bet_sub = { .x = 225, .y = 410, .w = 50, .h = 50, .c = RED };
 
 static bool       gui_locked = false;
+
+static int        seed = 0;
+
+static double SlotWinPrbblty[ SLOT_WIN_COUNT ] = 
+{
+/* Probability:    Return:          Item Shown:                     Name:  */
+    0.60,         /* 0x bet   */    /* Random 3 different items */   /* SLOT_WIN_NONE */
+    0.30,         /* 1x bet   */    /* Cherry, Lemon            */   /* SLOT_WIN_SMLL */
+    0.055,        /* 3x bet   */    /* Orange, Banana           */   /* SLOT_WIN_LRGE */
+    0.025,        /* 5x bet   */    /* Watermelon, Grape        */   /* SLOT_WIN_MNOR */
+    0.015,        /* 10x bet  */    /* Bell, Bar                */   /* SLOT_WIN_MJOR */
+    0.005,        /* 50x bet  */    /* Seven                    */   /* SLOT_WIN_JKPT */
+};
 
 /**********************
  * Functions
@@ -73,6 +89,9 @@ void SlotMachine_run( void * pvParameters )
 
         if ( touch_count > 0 )
         {
+            /* Update seed */
+            srand(touches[0].x * touches[0].y);
+
             /* Check if touches were a button press */
             if ( Touch_isBtnTouch( btn_bet_add, touches[0] ) == ERR_NONE )
             {
@@ -89,9 +108,6 @@ void SlotMachine_run( void * pvParameters )
         }
 
         Slot_SpinReels();
-        Slot_LockReels();
-        Slot_UpdtItems();
-        Slot_UpdtCoins();
     }
 }
 
@@ -102,7 +118,6 @@ void SlotMachine_run( void * pvParameters )
  **************************************************/
 static void Slot_InitReels( )
 {
-    Serial.println("Initializing Reels");
     Arduino_GFX * canvas = Display_getCanvas();
 
     canvas->fillScreen(BLACK);
@@ -110,9 +125,9 @@ static void Slot_InitReels( )
     for ( int i = 0; i < REEL_CNT; i++ )
     {
         reel[i].sprite = new Arduino_Sprite(128, 300, canvas);  /* Create a new sprite object              */
-        reel[i].sprite->initAnim(1,0,0,128,1152);               /* Initialize the reel animation           */
+        reel[i].sprite->initAnim(0,0,0,128,1152);               /* Initialize the reel animation           */
         reel[i].sprite->begin((uint8_t*)imageReel,paletteReel); /* Initialize the sprites with their image */
-        reel[i].sprite->Move((i*128)+(15*i)+15,0);              /* Move the reels into position            */
+        reel[i].sprite->Move((i*128)+(15*i)+15,ITEM_HEIGHT/2);              /* Move the reels into position            */
         reel[i].sprite->ScrollV();                              /* Scrolling here will draw the sprites    */
         reel[i].state = SLOT_STATE_LOAD;
     }
@@ -128,15 +143,36 @@ static void Slot_InitReels( )
 static void Slot_LoadReels( )
 {
     /* Verify enough coins to play slots */
-    if ( coins - bet_amnt >= 0 )
+    if ( coins - bet_amnt >= 0 && !gui_locked )
     {
+        curr_win = GetSlotWin();
+        curr_payout = 0;
+
+        if ( curr_win != SLOT_WIN_NONE )
+        {
+            curr_item = MapWinToItem( curr_win, curr_payout );
+            reel[0].item = curr_item;
+            reel[1].item = curr_item;
+            reel[2].item = curr_item;
+        }
+        else
+        {
+            reel[2].item = (rand() % SLOT_ITEM_COUNT);
+            reel[1].item = (reel[0].item + rand()) % SLOT_ITEM_COUNT;
+            reel[0].item = reel[2].item == reel[1].item ? (reel[2].item + 1) % SLOT_ITEM_COUNT : (rand() % SLOT_ITEM_COUNT);
+        }
+
         for ( int i = 0; i < REEL_CNT; i++ )
         {
             if ( reel[i].state == SLOT_STATE_LOAD)
             {
-                reel[i].scroll_tm = 85 - (i*15);
-                reel[i].scroll_sp = 80 - (i*10);
+                reel[i].scroll_sp = 70 - (i*10);
                 reel[i].state = SLOT_STATE_SPIN;
+
+                int dist_to_item = 
+                    ( (SLOT_ITEM_COUNT - reel[i].item + 1) * ITEM_HEIGHT - reel[i].scroll + REEL_HEIGHT )
+                     % REEL_HEIGHT - ITEM_HEIGHT / 2;
+                reel[i].scroll_pxl = (4 - i) * (REEL_HEIGHT) + dist_to_item;
 
                 gui_locked = true;
             }
@@ -154,83 +190,46 @@ static void Slot_LoadReels( )
  **************************************************/
 static void Slot_SpinReels( )
 {
-    //Serial.println("Spinning Reels");
     Arduino_GFX * canvas = Display_getCanvas();
+
+    static uint8_t stp_reel_cnt = 0;
 
     for (int i = 0; i < REEL_CNT; i++)
     {
+        /* Ensure each reel is in the proper state */
         if ( reel[i].state == SLOT_STATE_SPIN )
         {
-            if ( reel[i].scroll_tm > 0 )
+            /* Slowdown the reel when getting close to end */
+            if ( reel[i].scroll_pxl <= 256 )
             {
-                reel[i].scroll = reel[i].scroll + reel[i].scroll_sp > 1152 ? 0 : reel[i].scroll + reel[i].scroll_sp;
+                const uint8_t slowdown_speed = 30;
+                reel[i].scroll_sp = reel[i].scroll_pxl - slowdown_speed <= 0 ? reel[i].scroll_pxl : slowdown_speed;
+            }
+
+            /* Check if each reel has more pixels to move */
+            if ( reel[i].scroll_pxl > 0 )       
+            {
+                reel[i].scroll = (reel[i].scroll + reel[i].scroll_sp) % REEL_HEIGHT;
                 reel[i].sprite->Move(reel[i].sprite->GetX(),reel[i].scroll);
                 reel[i].sprite->ScrollV();
-                reel[i].scroll_tm--;
-                reel[i].scroll_sp = reel[i].scroll_sp < 0 ? 0 : reel[i].scroll_sp - 1;
+                reel[i].scroll_pxl -= reel[i].scroll_sp;
             }
             else
             {
-                reel[i].state = SLOT_STATE_LOCK;
-                //Serial.printf("Reel %d finished spinning, trans to lock\r\n",i);
+                /* This reel has stopped, move it to the next state */
+                reel[i].state = SLOT_STATE_COIN;
+                stp_reel_cnt++;
             }
         }
     }
 
     canvas->flush();
-}
 
-/***************************************************
- * Slot_LockReels()
- * 
- * Description: After reels have spun, lock them
- *              in place.
- **************************************************/
-static void Slot_LockReels( )
-{
-    /* Figure out displacement of each reel */
-    /* If a reel is already locked, skip it */
-    int reel_disp[ REEL_CNT ] = {0};
-    for ( int i = 0; i < REEL_CNT; i++ )
+    /* All reels have finished, update coins */
+    if ( stp_reel_cnt == REEL_CNT )
     {
-        if ( reel[i].state == SLOT_STATE_LOCK )
-        {
-            reel_disp[i] = reel[i].sprite->GetY() % REEL_WIDTH;
-            if ( reel_disp[i] == 0 )
-            {
-                reel[i].state = SLOT_STATE_ITEM;
-            }
-        }
-    }
-
-    /* Process all reels ready for alignment */
-    for ( int i = 0; i < REEL_CNT; i++ )
-    {
-        if ( reel[i].state == SLOT_STATE_LOCK )
-        {
-            int tmp_sp = reel_disp[i] > (REEL_WIDTH * 0.45) ? REEL_WIDTH - reel_disp[i] : -reel_disp[i];
-            reel[i].scroll_sp = tmp_sp;
-            reel[i].scroll_tm = 1;
-            reel[i].state = SLOT_STATE_SPIN;
-        }
-    }
-}
-
-/***************************************************
- * Slot_UpdtItems()
- * 
- * Description: Update which item is selected on
- *              each reel.
- **************************************************/
-static void Slot_UpdtItems( )
-{
-    for ( int i = 0; i < REEL_CNT; i++ )
-    {
-        if ( reel[i].state == SLOT_STATE_ITEM )
-        {
-            reel[i].item = reel[i].sprite->GetY() / REEL_WIDTH;
-            reel[i].state = SLOT_STATE_COIN;
-        }
+        stp_reel_cnt = 0;
+        Slot_UpdtCoins( );
     }
 }
 
@@ -242,21 +241,19 @@ static void Slot_UpdtItems( )
 static void Slot_UpdtCoins( )
 {
     /* Verify all reels are locked and their items are updated */
-    bool rdy = true;
-    for ( int i = 0; i < REEL_CNT & rdy; i++ )
+    for ( int i = 0; i < REEL_CNT; i++ )
     {
         if ( reel[i].state != SLOT_STATE_COIN )
         {
-            rdy = false;
             return;
         }
     }
 
     /* Update coin count if win */
-    coins++;
+    coins += (bet_amnt * curr_payout);
 
     /* Reset reels to load state */
-    for ( int i = 0; i < REEL_CNT & rdy; i++ )
+    for ( int i = 0; i < REEL_CNT; i++ )
     {
         reel[i].state = SLOT_STATE_LOAD;
     }
@@ -268,9 +265,9 @@ static void Slot_UpdtCoins( )
 }
 
 /***************************************************
- * DisplayCoins()
+ * DisplayUI()
  * 
- * Description: Display current coin count
+ * Description: Display current GUI count
  **************************************************/
 static void DisplayUI( )
 {
@@ -321,4 +318,72 @@ static void DecBetAmnt( )
         DisplayUI();
         vTaskDelay( 1500 );
     }
+}
+
+/***************************************************
+ * GetSlotWin()
+ * 
+ * Description: Determine a win for this round
+ **************************************************/
+static SlotWins_t GetSlotWin()
+{
+    double rndm = rand() / ( RAND_MAX + 1.0 );
+    double cumulative = 0.0;
+
+    for ( int i = 0; i < SLOT_WIN_COUNT; ++i )
+    {
+        cumulative += SlotWinPrbblty[ i ];
+        if ( rndm < cumulative ) 
+        {
+            return i;
+        }
+    }
+
+    /* Fallback loss */
+    return (0);
+
+}
+
+/***************************************************
+ * MapWinToItem()
+ * 
+ * Description: Map an item to a win
+ **************************************************/
+static SlotItems_t MapWinToItem( SlotWins_t win, uint8_t &payout )
+{
+    SlotItems_t ret_val = SLOT_ITEM_CHERRY;
+
+    switch( win )
+    {
+        case SLOT_WIN_JKPT:
+            ret_val = SLOT_ITEM_SEVEN;
+            payout = 50;
+            break;
+
+        case SLOT_WIN_MJOR:
+            ret_val = (rand() % 2) == 0 ? SLOT_ITEM_CHERRY : SLOT_ITEM_LEMON;
+            payout = 10;
+            break;
+
+        case SLOT_WIN_MNOR:
+            ret_val = (rand() % 2) == 0 ? SLOT_ITEM_MELON : SLOT_ITEM_GRAPE;
+            payout = 5;
+            break;
+
+        case SLOT_WIN_LRGE:
+            ret_val = (rand() % 2) == 0 ? SLOT_ITEM_ORANGE : SLOT_ITEM_BANANA;
+            payout = 3;
+            break;
+
+        case SLOT_WIN_SMLL:
+            ret_val = (rand() % 2) == 0 ? SLOT_ITEM_CHERRY : SLOT_ITEM_LEMON;
+            payout = 1;
+            break;
+
+        default:
+            ret_val = SLOT_ITEM_CHERRY;
+            payout = 0;
+    }
+
+    return ret_val;
 }
