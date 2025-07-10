@@ -34,7 +34,7 @@ static SlotItems_t MapWinToItem( SlotWins_t win, uint8_t &payout );
  **********************/
 static SlotReel_s  reel[ REEL_CNT ] = {0};
 static int         coins = 100;
-static uint8_t     bet_amnt = 100;
+static int         bet_amnt = 1;
 static SlotWins_t  curr_win = SLOT_WIN_NONE;
 static SlotItems_t curr_item = SLOT_ITEM_SEVEN;
 static uint8_t     curr_payout = 0;
@@ -320,7 +320,7 @@ static void DecBetAmnt( )
 {
     if ( !gui_locked )
     {
-        bet_amnt -= bet_amnt == 0 ? 0 : 1; 
+        bet_amnt = bet_amnt == 0 ? min(coins,9999) : bet_amnt - 1;
         DisplayUI();
         vTaskDelay( 350 );
     }
