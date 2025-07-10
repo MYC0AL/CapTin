@@ -34,14 +34,15 @@ static SlotItems_t MapWinToItem( SlotWins_t win, uint8_t &payout );
  **********************/
 static SlotReel_s  reel[ REEL_CNT ] = {0};
 static int         coins = 100;
-static uint8_t     bet_amnt = 1;
+static uint8_t     bet_amnt = 100;
 static SlotWins_t  curr_win = SLOT_WIN_NONE;
 static SlotItems_t curr_item = SLOT_ITEM_SEVEN;
 static uint8_t     curr_payout = 0;
 
-static BtnGUI_s   btn_bet_add = { .x = 30, .y = 410, .w = 50, .h = 50, .c = GREEN };
-static BtnGUI_s   btn_bet_sub = { .x = 225, .y = 410, .w = 50, .h = 50, .c = RED };
-
+static BtnGUI_s   btn_bet_add = { .x = 7, .y = 370, .w = 60, .h = 100, .c = GREEN };
+static BtnGUI_s   btn_bet_sub = { .x = 180, .y = 370, .w = 60, .h = 100, .c = RED };
+static BtnGUI_s   btn_spin_reel = { .x = 20, .y = 90, .w = 440, .h = 256, .c = LIGHTBLACK };
+//440, 256, gfx, 20, 90
 static bool       gui_locked = false;
 
 static int        seed = 0;
@@ -77,6 +78,10 @@ void SlotMachine_run( void * pvParameters )
 
     Display_getGFX()->fillScreen(BLACK); // Note: Do not call gfx->begin() when using canvas
 
+    /* Draw background picture */
+    const char * file_name = "/slot_machine.jpg";
+    Display_FillJPEG( file_name );
+
     Slot_InitReels();
     DisplayUI();
 
@@ -101,7 +106,7 @@ void SlotMachine_run( void * pvParameters )
             {
                 DecBetAmnt( );
             }
-            else
+            else if ( Touch_isBtnTouch( btn_spin_reel, touches[0] ) == ERR_NONE )
             {
                 Slot_LoadReels();
             }
@@ -120,7 +125,7 @@ static void Slot_InitReels( )
 {
     Arduino_GFX * canvas = Display_getCanvas();
 
-    canvas->fillScreen(BLACK);
+    canvas->fillScreen( LIGHTBLACK );
 
     for ( int i = 0; i < REEL_CNT; i++ )
     {
@@ -272,21 +277,21 @@ static void Slot_UpdtCoins( )
 static void DisplayUI( )
 {
     Arduino_ST7701_RGBPanel * gfx = Display_getGFX();
-    gfx->setCursor(305,410);
-    gfx->setTextSize(2);
-    gfx->setTextColor(ORANGE);
-    gfx->fillRect(305,410,160,20,BLACK);
-    gfx->printf("Credits: %d",coins);
+    gfx->setCursor( 325, 415 );
+    gfx->setTextSize( 3 );
+    gfx->setTextColor( GOLD );
+    gfx->fillRect( 325, 415, 90, 25, LIGHTBLACK );
+    gfx->printf( "%d",coins );
 
     /* Display bet amount text and buttons */
-    gfx->fillRect( btn_bet_add.x, btn_bet_add.y, btn_bet_add.w, btn_bet_add.h, btn_bet_add.c );
-    gfx->fillRect( btn_bet_sub.x, btn_bet_sub.y, btn_bet_sub.w, btn_bet_sub.h, btn_bet_sub.c );
+    //gfx->drawRect( btn_bet_add.x, btn_bet_add.y, btn_bet_add.w, btn_bet_add.h, btn_bet_add.c );
+    //gfx->drawRect( btn_bet_sub.x, btn_bet_sub.y, btn_bet_sub.w, btn_bet_sub.h, btn_bet_sub.c );
 
-    gfx->setTextSize(2);
-    gfx->setCursor( 110, 410 );
-    gfx->setTextColor( GREEN );
-    gfx->fillRect( 110, 410, 90, 20, BLACK );
-    gfx->printf( "Bet: %d",bet_amnt );
+    gfx->setTextSize( 3 );
+    gfx->setCursor( 100, 415 );
+    gfx->setTextColor( GOLD );
+    gfx->fillRect( 100, 415, 70, 25, LIGHTBLACK );
+    gfx->printf( "%d",bet_amnt );
 
 }
 
@@ -299,9 +304,10 @@ static void IncBetAmnt( )
 {
     if ( !gui_locked )
     {
-        bet_amnt += bet_amnt >= coins ? 0 : 1; 
+        bet_amnt += bet_amnt >= coins ? 0 : 1;
+        bet_amnt = bet_amnt > 9999 ? 9999 : bet_amnt;
         DisplayUI();
-        vTaskDelay( 1500 );
+        vTaskDelay( 350 );
     }
 }
 
@@ -316,7 +322,7 @@ static void DecBetAmnt( )
     {
         bet_amnt -= bet_amnt == 0 ? 0 : 1; 
         DisplayUI();
-        vTaskDelay( 1500 );
+        vTaskDelay( 350 );
     }
 }
 
