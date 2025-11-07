@@ -3,7 +3,8 @@
 #include "cmn/ControlSD.h"
 #include "cmn/ControlDisplay.h"
 #include "cmn/ControlTouch.h"
-#include "drv/TaskSetup.h"
+#include "knl/TaskSetup.h"
+#include "cmn/Config.h"
 
 void setup()
 {
@@ -28,10 +29,16 @@ void setup()
     Serial.println("Error: SD Card Failed to Mount");
   }
 
-  /* Initialize the relevant tasks */
+  #if ( CFG_DEV )
+  Init_Task_Dev();
+  #else
   Init_Task_CapTin();
+  #endif
+
+  /* Initialize the relevant tasks */
   //Init_Task_TicTacToe();
-  Init_Task_SlotMachine();
+  //Init_Task_SlotMachine();
+  //Init_Task_Hacker();
   
 }
 

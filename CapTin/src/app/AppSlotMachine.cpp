@@ -304,8 +304,9 @@ static void IncBetAmnt( )
 {
     if ( !gui_locked )
     {
-        bet_amnt += bet_amnt >= coins ? 0 : 1;
-        bet_amnt = bet_amnt > 9999 ? 9999 : bet_amnt;
+        int max_bet_amnt = min( coins, 9999 );
+        bet_amnt = bet_amnt + 1 > max_bet_amnt ? 0 : bet_amnt + 1;
+
         DisplayUI();
         vTaskDelay( 350 );
     }
@@ -367,7 +368,7 @@ static SlotItems_t MapWinToItem( SlotWins_t win, uint8_t &payout )
             break;
 
         case SLOT_WIN_MJOR:
-            ret_val = (rand() % 2) == 0 ? SLOT_ITEM_CHERRY : SLOT_ITEM_LEMON;
+            ret_val = (rand() % 2) == 0 ? SLOT_ITEM_BELL : SLOT_ITEM_BAR;
             payout = 10;
             break;
 

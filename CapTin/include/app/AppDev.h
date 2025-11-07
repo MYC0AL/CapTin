@@ -1,32 +1,22 @@
 /****************************************************
- * TaskSetup.h
+ * AppDev.h
  * 
- * Setup the CapTin tasks
+ * The Developer Application
  * 
  ****************************************************/
-#ifndef _TASKSETUP_H_
-#define _TASKSETUP_H_
+#pragma once
 
 /**********************
  * Includes
  **********************/
-#include <FreeRTOS.h>
-#include <task.h>
 #include "cmn/Errors.h"
+#include <FreeRTOS.h>
+#include "cmn/ControlDisplay.h"
+#include "cmn/ControlTouch.h"
 
 /**********************
  * Defines
  **********************/
-#define TASK_MIN_STACK 4096
-
-/**********************
- * Types
- **********************/
-enum
-{
-    tskMED_PRIORITY,
-    tskHIGH_PRIORITY,
-};
 
 /**********************
  * Function Prototypes
@@ -39,8 +29,5 @@ enum
 /**********************
  * Functions
  **********************/
-ct_err_t Init_Task_CapTin( );
-ct_err_t Init_Task_TicTacToe( );
-ct_err_t Init_Task_SlotMachine( );
+void Dev_run( void * pvParameters );
 
-#endif

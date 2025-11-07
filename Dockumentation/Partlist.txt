@@ -1,0 +1,3 @@
+Name				Part Num			Qty				Current (Max)			Voltage			Resistance
+
+Servo				SG90				2										5
