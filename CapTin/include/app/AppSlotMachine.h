@@ -13,6 +13,7 @@
 #include <FreeRTOS.h>
 #include "cmn/ControlDisplay.h"
 #include "cmn/ControlTouch.h"
+#include "knl/TaskSetup.h"
 #include "arduino_sprite.h"
 #include "sprites/reel.h"
 #include <stdlib.h>
@@ -89,6 +90,7 @@ typedef struct
 /**********************
  * Functions
  **********************/
+void SlotMachine_setup( );
 void SlotMachine_run( void * pvParameters );
 
 /**********************

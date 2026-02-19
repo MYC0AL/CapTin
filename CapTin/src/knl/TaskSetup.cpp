@@ -14,6 +14,7 @@
 #include "app/AppTicTacToe.h"
 #include "app/AppSlotMachine.h"
 #include "app/AppHacker.h"
+#include "app/AppTouchTime.h"
 #include "cmn/Config.h"
 
 /**********************
@@ -27,23 +28,19 @@
 /**********************
  * Variables
  **********************/
-static CapTin_Handles_t _handles;
-
-#if ( CFG_DEV )
-static TaskHandle_t _dev_handle;
-#endif
+static CapTin_Hook_s _hooks[ APP_COUNT_TOTAL ];
 
 /**********************
  * Functions
  **********************/
 /***************************************************
- * GetCapTinHandles()
+ * GetCapTinHooks()
  * 
  * Description: Return a struct of all task handles
  **************************************************/
-void GetCapTinHandles( CapTin_Handles_t handles )
+void GetCapTinHooks( CapTin_Hook_s hooks[ APP_COUNT_TOTAL ] )
 {
-    memcpy( handles, _handles, sizeof( TaskHandle_t ) * APP_COUNT );
+    memcpy( hooks, _hooks, sizeof( CapTin_Hook_s ) * APP_COUNT_TOTAL );
 }
 
 /***************************************************
@@ -60,8 +57,10 @@ ct_err_t Init_Task_CapTin( )
         TASK_MIN_STACK,
         nullptr,
         tskMED_PRIORITY,
-        &_handles[ APP_CAPTIN ]
+        &_hooks[ APP_CAPTIN ].tsk_hndl
         );
+
+    _hooks[ APP_CAPTIN ].setup_fnctn = nullptr;
 
     return ERR_NONE;
 }
@@ -80,9 +79,10 @@ ct_err_t Init_Task_Dev( )
         TASK_MIN_STACK,
         nullptr,
         tskMED_PRIORITY,
-        &_dev_handle
+        &_hooks[ APP_DEV ].tsk_hndl
         );
 
+    _hooks[ APP_DEV ].setup_fnctn = nullptr;
     return ERR_NONE;
 }
 
@@ -100,9 +100,10 @@ ct_err_t Init_Task_TicTacToe( )
         TASK_MIN_STACK,
         nullptr,
         tskMED_PRIORITY,
-        &_handles[ APP_TICTACTOE ]
+        &_hooks[ APP_TICTACTOE ].tsk_hndl
         );
 
+    _hooks[ APP_TICTACTOE ].setup_fnctn = TicTacToe_setup;
     return ERR_NONE;
 }
 
@@ -120,8 +121,10 @@ ct_err_t Init_Task_SlotMachine( )
         TASK_MIN_STACK,
         nullptr,
         tskMED_PRIORITY,
-        &_handles[ APP_SLOTMACHINE ]
+        &_hooks[ APP_SLOTMACHINE ].tsk_hndl
         );
+
+    _hooks[ APP_SLOTMACHINE ].setup_fnctn = SlotMachine_setup;
 
     return ERR_NONE;  
 }
@@ -140,8 +143,31 @@ ct_err_t Init_Task_Hacker( )
         TASK_MIN_STACK,
         nullptr,
         tskMED_PRIORITY,
-        &_handles[ APP_HACKER ]
+        &_hooks[ APP_HACKER ].tsk_hndl
         );
 
+    _hooks[ APP_HACKER ].setup_fnctn = Hacker_setup;
+    return ERR_NONE;
+}
+
+
+/***************************************************
+ * Init_Task_TouchTime()
+ * 
+ * Description: Create the Touch Time task
+ **************************************************/
+ct_err_t Init_Task_TouchTime( )
+{
+    xTaskCreate
+        (
+        TouchTime_run,
+        "TouchTime",
+        TASK_MIN_STACK,
+        nullptr,
+        tskMED_PRIORITY,
+        &_hooks[ APP_TOUCHTIME ].tsk_hndl
+        );
+
+    _hooks[ APP_TOUCHTIME ].setup_fnctn = TouchTime_setup;
     return ERR_NONE;
 }

@@ -21,14 +21,17 @@
  * Function Prototypes
  **********************/
 static void ShowAllApps( );
-static void StartApp( uint8_t app_idx );
+static void StartApp( app_list_t8 app_idx );
 static void StopApps( );
 
 /**********************
  * Variables
  **********************/
-BtnGUI_s DevAppBtns[ APP_COUNT ];
-static char DevAppInitial[ APP_COUNT ] = { 'C', 'T', 'S', 'H' };
+BtnGUI_s DevAppBtns[ APP_COUNT_USER ];
+
+static char DevAppInitial[ ] = { 'T', 'S', 'H', 'O' };
+static_assert( sizeof( DevAppInitial ) == APP_COUNT_USER, "Missing Dev char identifier" );
+
 static bool DevEnabled = true;
 
 /**********************
@@ -50,13 +53,14 @@ void Dev_run( void * pvParameters )
     {
         TP_Point tp[ TOUCH_MAX ];
         uint8_t touch_count = 0;
+
         Touch_getTouches( tp, &touch_count );
 
         if ( DevEnabled )
         {
             if ( touch_count )
             {
-                for ( int i = 0; i < APP_COUNT; i ++ )
+                for ( int i = 0; i < APP_COUNT_USER; i ++ )
                 {
                     if ( Touch_isBtnTouch( DevAppBtns[ i ], tp[ 0 ] ) == ERR_NONE )
                     {
@@ -74,8 +78,13 @@ void Dev_run( void * pvParameters )
         else if ( touch_count == TOUCH_MAX )
         {
             StopApps();
+            ShowAllApps();
             DevEnabled = true;
+            vTaskDelay( pdMS_TO_TICKS( 1000 ) );
         }
+
+        /* Delay to allow other tasks to run */
+        vTaskDelay( pdMS_TO_TICKS( 50 ) );
     }
 }
 
@@ -97,8 +106,8 @@ static void ShowAllApps( )
     gfx->printf( "====================" );
 
     /* Init the app buttons */
-    memset( DevAppBtns, 0, sizeof( BtnGUI_s ) * APP_COUNT );
-    for ( int i = 0; i < APP_COUNT; i++ )
+    memset( DevAppBtns, 0, sizeof( BtnGUI_s ) * APP_COUNT_USER );
+    for ( int i = 0; i < APP_COUNT_USER; i++ )
     {
         DevAppBtns[ i ].x = (i % 3) * 140 + 50;
         DevAppBtns[ i ].y = (i / 3) * 140 + 100;
@@ -108,7 +117,7 @@ static void ShowAllApps( )
     }
 
     /* Draw the buttons on the screen */
-    for ( int i = 0; i < APP_COUNT; i++ )
+    for ( int i = 0; i < APP_COUNT_USER; i++ )
     {
         gfx->drawRect( DevAppBtns[ i ].x, DevAppBtns[ i ].y, DevAppBtns[ i ].w, DevAppBtns[ i ].h, DevAppBtns[ i ].c );
         gfx->setCursor( DevAppBtns[ i ].x + 45, DevAppBtns[ i ].y + 35 );
@@ -121,27 +130,17 @@ static void ShowAllApps( )
  * 
  * Description: Start desired App
  **************************************************/
-static void StartApp( uint8_t app_idx )
+static void StartApp( app_list_t8 app_idx )
 {
-    /* Start the desired app */
-    switch( app_idx )
-    {
-        case APP_CAPTIN:
-            Init_Task_CapTin();
-        break;
+    /* Get a handle to each app */
+    CapTin_Hook_s hooks[ APP_COUNT_USER ];
+    GetCapTinHooks( hooks );
 
-        case APP_TICTACTOE:
-            Init_Task_TicTacToe();
-        break;
-
-        case APP_SLOTMACHINE:
-            Init_Task_SlotMachine();
-        break;
-
-        case APP_HACKER:
-            Init_Task_Hacker();
-        break;
-    }
+    /* Notify then resume desired app */
+    xTaskNotify( hooks[ app_idx ].tsk_hndl, NTFY_SETUP, eSetValueWithOverwrite);
+    vTaskResume( hooks[ app_idx ].tsk_hndl );
+    vTaskDelay( pdTICKS_TO_MS( 100 ) );
+    xTaskNotify( hooks[ app_idx ].tsk_hndl, NTFY_PRDC, eSetValueWithOverwrite);
 }
 
 /***************************************************
@@ -152,15 +151,12 @@ static void StartApp( uint8_t app_idx )
 static void StopApps( )
 {
     /* Get a handle to each app */
-    CapTin_Handles_t handles;
-    GetCapTinHandles( handles );
+    CapTin_Hook_s hooks[ APP_COUNT_USER ];
+    GetCapTinHooks( hooks );
 
-    /* Stop all apps ( except Dev ) */
-    for ( int i = 0; i < APP_COUNT; i++ )
+    /* Stop all user apps */
+    for ( int i = 0; i < APP_COUNT_USER; i++ )
     {
-        if ( handles[ i ] != nullptr )
-        {
-            vTaskDelete( handles[ i ] );
-        }
+        vTaskSuspend( hooks[ i ].tsk_hndl );
     }
 }

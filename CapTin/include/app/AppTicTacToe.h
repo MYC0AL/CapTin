@@ -51,6 +51,7 @@ static const int WIN_PATTERNS[WIN_PATTERN_COUNT] = {
 /**********************
  * Functions
  **********************/
+void TicTacToe_setup( );
 void TicTacToe_run( void * pvParameters );
 
 /**********************

@@ -44,6 +44,7 @@ typedef struct
 /**********************
  * Variables
  **********************/
+//extern SemaphoreHandle_t xTouchSemaphore;
 
 /**********************
  * Functions

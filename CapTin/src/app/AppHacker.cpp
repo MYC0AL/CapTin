@@ -26,6 +26,18 @@
  * Functions
  **********************/
 
+ /***************************************************
+ * Hacker_setup()
+ * 
+ * Description: Setup the hacker app
+ **************************************************/
+void Hacker_setup( )
+{
+    Arduino_ST7701_RGBPanel * gfx = Display_getGFX();
+    gfx->fillScreen( BLACK );
+    gfx->setTextSize( 3 );
+}
+
 /***************************************************
  * Hacker_run()
  * 
@@ -35,17 +47,15 @@ void Hacker_run( void * pvParameters )
 {
     Serial.println("Hacker: Application Started ");
 
+    /* Suspend self on startup */
+    vTaskSuspend( NULL );
+
     Arduino_ST7701_RGBPanel * gfx = Display_getGFX();
     Arduino_GFX* canvas = Display_getCanvas();
 
     char data[15][15];
 
-    /* Initialize the screen to clear black */
-    gfx->fillScreen( BLACK );
-
     LeetLine line( gfx );
-
-    gfx->setTextSize( 3 );
 
     while( 1 )
         {

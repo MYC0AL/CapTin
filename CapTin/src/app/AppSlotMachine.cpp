@@ -28,7 +28,6 @@ static void DecBetAmnt( );
 static SlotWins_t GetSlotWin();
 static SlotItems_t MapWinToItem( SlotWins_t win, uint8_t &payout );
 
-
 /**********************
  * Variables
  **********************/
@@ -62,6 +61,24 @@ static double SlotWinPrbblty[ SLOT_WIN_COUNT ] =
  * Functions
  **********************/
 
+ /***************************************************
+ * SlotMachine_setup()
+ * 
+ * Description: Setup the slot machine
+ **************************************************/
+void SlotMachine_setup ( )
+{
+    /* Clear screen */
+    Display_getGFX()->fillScreen(BLACK);
+
+    /* Draw background picture */
+    const char * file_name = "/slot_machine.jpg";
+    Display_FillJPEG( file_name );
+
+    /* Display slot GUI */
+    DisplayUI();
+}
+ 
 /***************************************************
  * SlotMachine_run()
  * 
@@ -69,50 +86,64 @@ static double SlotWinPrbblty[ SLOT_WIN_COUNT ] =
  **************************************************/
 void SlotMachine_run( void * pvParameters )
 {
+    // https://github.com/h5n1xp/Arduino_Sprite?tab=readme-ov-file
     Serial.println("SlotMachine: Application Started ");
 
-    // https://github.com/h5n1xp/Arduino_Sprite?tab=readme-ov-file
-
-    Arduino_ST7701_RGBPanel * gfx = Display_getGFX();
+    Arduino_ST7701_RGBPanel * gfx = Display_getGFX(); // Note: Do not call gfx->begin() when using canvas
     Arduino_GFX* canvas = Display_getCanvas();
-
-    Display_getGFX()->fillScreen(BLACK); // Note: Do not call gfx->begin() when using canvas
-
-    /* Draw background picture */
-    const char * file_name = "/slot_machine.jpg";
-    Display_FillJPEG( file_name );
-
-    Slot_InitReels();
-    DisplayUI();
 
     uint8_t touch_count = 0;
     TP_Point touches[TOUCH_MAX] = {};
 
-    while(1)
+    ntfy_app_t8 tsk_notifs = NTFY_NONE;
+
+    /* Suspend self on startup */
+    vTaskSuspend( NULL );
+
+    while( true )
     {   
-        Touch_getTouches( touches, &touch_count );
-
-        if ( touch_count > 0 )
+        /* Check task notifications */
+        if ( xTaskNotifyWait( 0, 0, &tsk_notifs, 0 ) == pdTRUE )
         {
-            /* Update seed */
-            srand(touches[0].x * touches[0].y);
+            /* Perform app update */
+            if ( tsk_notifs == NTFY_SETUP )
+            {
+                SlotMachine_setup();
+                Slot_InitReels();
 
-            /* Check if touches were a button press */
-            if ( Touch_isBtnTouch( btn_bet_add, touches[0] ) == ERR_NONE )
-            {
-                IncBetAmnt( );
+                /* Wait a little while transition to avoid initial touches */
+                vTaskDelay( pdMS_TO_TICKS( 500 ) );
             }
-            else if ( Touch_isBtnTouch( btn_bet_sub, touches[0] ) == ERR_NONE )
-            {
-                DecBetAmnt( );
-            }
-            else if ( Touch_isBtnTouch( btn_spin_reel, touches[0] ) == ERR_NONE )
-            {
-                Slot_LoadReels();
-            }
+
         }
 
-        Slot_SpinReels();
+        if ( tsk_notifs == NTFY_PRDC )
+        {
+            Touch_getTouches( touches, &touch_count );
+
+            if ( touch_count > 0 )
+            {
+                /* Update seed */
+                srand( touches[0].x * touches[0].y );
+
+                /* Check if touches were a button press */
+                if ( Touch_isBtnTouch( btn_bet_add, touches[0] ) == ERR_NONE )
+                {
+                    IncBetAmnt( );
+                }
+                else if ( Touch_isBtnTouch( btn_bet_sub, touches[0] ) == ERR_NONE )
+                {
+                    DecBetAmnt( );
+                }
+                else if ( Touch_isBtnTouch( btn_spin_reel, touches[0] ) == ERR_NONE )
+                {
+                    Slot_LoadReels();
+                }
+            }
+
+            /* Spin the reels */
+            Slot_SpinReels();
+        }
     }
 }
 

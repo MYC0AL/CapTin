@@ -26,6 +26,18 @@
  * Functions
  **********************/
 
+ /***************************************************
+ * TicTacToe_setup()
+ * 
+ * Description: Run the TicTacToe application
+ **************************************************/
+void TicTacToe_setup( )
+{
+    /* Clear screen */
+    Display_getGFX()->fillScreen( BLACK );
+
+}
+
 /***************************************************
  * TicTacToe_run()
  * 
@@ -35,8 +47,13 @@ void TicTacToe_run( void * pvParameters )
 {
     Serial.println("TicTacToe: Application Started ");
 
+    /* Suspend self on startup */
+    vTaskSuspend( NULL );
+
     uint8_t touch_count = 0;
     TP_Point touches[TOUCH_MAX] = {};
+
+    TicTacToe_setup();
 
     TicTacToe ttt;
     ttt.DrawBoard();
