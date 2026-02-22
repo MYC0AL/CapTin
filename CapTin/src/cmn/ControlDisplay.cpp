@@ -77,3 +77,10 @@ ct_err_t Display_FillJPEG( const char * file_name )
                     );
     return err;
 }
+
+void cursor_config( int16_t x, int16_t y, uint8_t s, uint16_t c )
+{
+    Display_getGFX()->setCursor( x, y );
+    Display_getGFX()->setTextSize( s );
+    Display_getGFX()->setTextColor( c );
+}

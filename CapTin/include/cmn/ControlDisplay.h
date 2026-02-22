@@ -30,7 +30,7 @@
 /**********************
  * Variables
  **********************/
-
+    
 /**********************
  * Functions
  **********************/
@@ -38,3 +38,4 @@ int jpegDrawCallback(JPEGDRAW *pDraw);
 Arduino_ST7701_RGBPanel * Display_getGFX();
 Arduino_GFX * Display_getCanvas();
 ct_err_t Display_FillJPEG( const char * file_name );
+void cursor_config( int16_t x, int16_t y, uint8_t s, uint16_t c );
